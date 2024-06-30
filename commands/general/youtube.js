@@ -1,4 +1,4 @@
-import serversConfig from "../../config/servers.json" assert { type: "json" };
+import serversConfig from "../../config/servers.json" with { type: "json" };
 import { random } from "../../utils/misc.js";
 import paginator from "../../utils/pagination/pagination.js";
 import Command from "../../classes/command.js";
@@ -23,12 +23,12 @@ class YouTubeCommand extends Command {
     name: "query",
     type: 3,
     description: "The query you want to search for",
+    classic: true,
     required: true
   }];
 
   static description = "Searches YouTube";
   static aliases = ["yt", "video", "ytsearch"];
-  static args = ["[query]"];
 }
 
 export default YouTubeCommand;

@@ -23,7 +23,7 @@ services:
       lavalink:
         condition: service_healthy
       postgres:
-        condition: service_started
+        condition: service_healthy
 
     networks:
       esmbot:
@@ -35,7 +35,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml
-      - ./assets:/opt/Lavalink/assets
     healthcheck:
         test: "curl -H \"Authorization: $$(cat /opt/Lavalink/application.yml | grep password: | sed 's/^ *password: //g' | tr -d '\"')\" -f http://localhost:2333/version"
         interval: 10s

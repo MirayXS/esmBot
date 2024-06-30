@@ -6,7 +6,7 @@ class ChannelCommand extends Command {
     this.success = false;
     if (!this.guild) return "This command only works in servers!";
     const owners = process.env.OWNER.split(",");
-    if (!this.member.permissions.has("ADMINISTRATOR") && !owners.includes(this.member.id)) return "You need to be an administrator to enable/disable me!";
+    if (!this.memberPermissions.has("ADMINISTRATOR") && !owners.includes(this.member.id)) return "You need to be an administrator to enable/disable me!";
     if (this.args.length === 0) return "You need to provide whether I should be enabled or disabled in this channel!";
     if (this.args[0] !== "disable" && this.args[0] !== "enable") return "That's not a valid option!";
 
@@ -46,7 +46,29 @@ class ChannelCommand extends Command {
   }
 
   static description = "Enables/disables classic commands in a channel (use server settings for slash commands)";
-  static args = ["[enable/disable]", "{id}"];
+  static flags = [{
+    name: "enable",
+    type: 1,
+    description: "Enables classic commands in a channel",
+    options: [{
+      name: "text",
+      type: 3,
+      description: "The text to decode",
+      classic: true,
+      required: false
+    }]
+  }, {
+    name: "disable",
+    type: 1,
+    description: "Disables classic commands in a channel",
+    options: [{
+      name: "text",
+      type: 3,
+      description: "The text to encode",
+      classic: true,
+      required: false
+    }]
+  }];
   static slashAllowed = false;
   static directAllowed = false;
   static dbRequired = true;

@@ -6,7 +6,7 @@ import { setTimeout } from "node:timers/promises";
 import { VoiceChannel } from "oceanic.js";
 
 /**
- * @typedef {{ player: import("shoukaku").Player; host: string; voiceChannel: import("oceanic.js").VoiceChannel; originalChannel: import("oceanic.js").AnyTextableChannel | import("oceanic.js").AnyInteractionChannel; loop: boolean; shuffle: boolean; playMessage?: import("oceanic.js").Message }} MapPlayer
+ * @typedef {{ player: import("shoukaku").Player; host: string; voiceChannel: import("oceanic.js").VoiceChannel; originalChannel: import("oceanic.js").GuildChannel; loop: boolean; shuffle: boolean; playMessage?: import("oceanic.js").Message }} MapPlayer
  * @type {Map<string, MapPlayer>}
  */
 export const players = new Map();
@@ -14,7 +14,7 @@ export const queues = new Map();
 export const skipVotes = new Map();
 
 /**
- * @typedef {{ channel: import("oceanic.js").AnyTextableChannel | import("oceanic.js").AnyInteractionChannel; guild: import("oceanic.js").Guild; member: import("oceanic.js").Member; type: string; interaction: import("oceanic.js").CommandInteraction }} Options
+ * @typedef {{ channel: import("oceanic.js").GuildChannel; guild: import("oceanic.js").Guild; member: import("oceanic.js").Member; type: string; interaction: import("oceanic.js").CommandInteraction }} Options
  * @type {Shoukaku}
  */
 export let manager;
@@ -25,7 +25,7 @@ export let connected = false;
  * @param {import("oceanic.js").Client} client
  */
 export function connect(client) {
-  manager = new Shoukaku(new Connectors.OceanicJS(client), nodes, { moveOnDisconnect: true, resume: true, reconnectInterval: 500, reconnectTries: 1 });
+  manager = new Shoukaku(new Connectors.OceanicJS(client), nodes, { moveOnDisconnect: true, resume: true });
   manager.on("error", (node, error) => {
     logger.error(`An error occurred on Lavalink node ${node}: ${error}`);
   });
@@ -108,8 +108,8 @@ export async function play(client, soundUrl, options) {
       tracks = response.data.tracks.map((v) => v.encoded);
       break;
   }
-  queues.set(voiceChannel.guildID, oldQueue ? [...oldQueue, ...tracks] : tracks);
   if (process.env.YT_DISABLED === "true" && info?.sourceName === "youtube") return { content: "YouTube playback is disabled on this instance.", flags: 64 };
+  queues.set(voiceChannel.guildID, oldQueue ? [...oldQueue, ...tracks] : tracks);
   const playerMeta = players.get(options.guild.id);
   let player;
   if (manager.players.has(voiceChannel.guildID)) {
@@ -239,10 +239,10 @@ export async function nextSong(client, options, connection, track, info, voiceCh
       nextSong(client, options, connection, newQueue[0], newTrack?.info, voiceChannel, host, player?.loop, player?.shuffle, track);
     } else if (process.env.STAYVC !== "true" && data.reason !== "stopped") {
       await setTimeout(400);
-      await manager.leaveVoiceChannel(voiceChannel.guildID);
       players.delete(voiceChannel.guildID);
       queues.delete(voiceChannel.guildID);
       skipVotes.delete(voiceChannel.guildID);
+      await manager.leaveVoiceChannel(voiceChannel.guildID);
       try {
         const content = `🔊 The voice channel session in \`${voiceChannel.name}\` has ended.`;
         if (options.type === "classic") {
@@ -276,9 +276,8 @@ export async function nextSong(client, options, connection, track, info, voiceCh
  * @param {import("oceanic.js").Message} playingMessage
  * @param {import("oceanic.js").VoiceChannel} voiceChannel
  * @param {Options} options
- * @param {boolean} [closed]
  */
-export async function errHandle(exception, client, connection, playingMessage, voiceChannel, options, closed) {
+export async function errHandle(exception, client, connection, playingMessage, voiceChannel, options) {
   try {
     if (playingMessage.channel?.messages.has(playingMessage.id)) await playingMessage.delete();
     const playMessage = players.get(voiceChannel.guildID)?.playMessage;
@@ -295,7 +294,7 @@ export async function errHandle(exception, client, connection, playingMessage, v
   connection.removeAllListeners("stuck");
   connection.removeAllListeners("end");
   try {
-    const content = closed ? `🔊 I got disconnected by Discord and tried to reconnect; however, I got this error instead:\n\`\`\`${exception}\`\`\`` : `🔊 Looks like there was an error regarding sound playback:\n\`\`\`${exception.type}: ${exception.exception}\`\`\``;
+    const content = `🔊 Looks like there was an error regarding sound playback:\n\`\`\`${exception.exception.cause}: ${exception.exception.message}\`\`\``;
     if (options.type === "classic") {
       if (playingMessage.channel) await client.rest.channels.createMessage(playingMessage.channel.id, { content });
     } else {

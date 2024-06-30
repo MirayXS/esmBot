@@ -52,6 +52,7 @@ The parameters available to your command consist of the following:
 - `this.author`: An Oceanic [`User`](https://docs.oceanic.ws/latest/classes/User.User.html) object of the user who ran the command.
 - `this.member`: An Oceanic [`Member`](https://docs.oceanic.ws/latest/classes/Member.Member.html) object of the server member who ran the command. When running the command outside of a server, this parameter is undefined.
 - `this.permissions`: An Oceanic [`Permission`](https://docs.oceanic.ws/latest/classes/Permission.Permission.html) object of the bot's current permissions for a channel.
+- `this.memberPermissions`: An Oceanic [`Permission`](https://docs.oceanic.ws/latest/classes/Permission.Permission.html) object of the user who ran the commands's current permissions for a channel.
 - `this.options`: When run as a "classic" command, this is an object of special arguments (e.g. `--argument=true`) passed to the command. These arguments are stored in a key/value format, so following the previous example, `this.options.argument` would return true. When run as a slash command, this is an object of every argument passed to the command.
 
 Some options are only available depending on the context/original message type, which can be checked with `this.type`. The options only available with "classic" messages are listed below:
@@ -71,7 +72,6 @@ Some static fields are also available and can be set depending on your command. 
 
 - `description`: Your command's description, which is shown in the help command.
 - `aliases`: An array of command aliases. People will be able to run the command using these as well as the normal command name.
-- `arguments`: An array of command argument types, which are shown in the help command.
 - `flags`: An array of objects specifying command flags, or special arguments, that will be shown when running `help <command>` or a slash command. Example:
 ```js
 static flags = [{
@@ -83,6 +83,7 @@ static flags = [{
 ```
 - `slashAllowed`: Specifies whether or not the command is available via slash commands.
 - `directAllowed`: Specifies whether or not a command is available in direct messages.
+- `userAllowed`: Specifies whether or not a command is available when run in a user installation context.
 - `adminOnly`: Specifies whether or not a command should be limited to the bot owner(s).
 
 ## The `run` Function

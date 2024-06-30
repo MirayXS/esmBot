@@ -1,7 +1,7 @@
 import { paths, commands, messageCommands, info, categories, aliases as _aliases } from "./collections.js";
 import { log } from "./logger.js";
 
-import commandConfig from "../config/commands.json" assert { type: "json" };
+import commandConfig from "../config/commands.json" with { type: "json" };
 import { Constants } from "oceanic.js";
 
 let queryValue = 0;
@@ -10,9 +10,8 @@ let queryValue = 0;
  * Load a command into memory.
  * @param {import("oceanic.js").Client | null} client
  * @param {string} command
- * @param {boolean} slashReload
  */
-export async function load(client, command, slashReload = false) {
+export async function load(client, command) {
   const { default: props } = await import(`${command}?v=${queryValue}`);
   queryValue++;
   const commandArray = command.split("/");
@@ -39,10 +38,11 @@ export async function load(client, command, slashReload = false) {
     category: category,
     description: props.description,
     aliases: props.aliases,
-    params: props.args,
+    params: parseFlags(props.flags),
     flags: props.flags,
     slashAllowed: props.slashAllowed,
     directAllowed: props.directAllowed,
+    userAllowed: props.userAllowed,
     adminOnly: props.adminOnly,
     type: Constants.ApplicationCommandTypes.CHAT_INPUT
   };
@@ -54,7 +54,7 @@ export async function load(client, command, slashReload = false) {
     commands.set(commandName, props);
   }
 
-  if (slashReload && props.slashAllowed) {
+  if (client && props.slashAllowed) {
     await send(client);
   }
 
@@ -72,6 +72,26 @@ export async function load(client, command, slashReload = false) {
   return commandName;
 }
 
+/**
+ * Convert command flags to params
+ * @param {object} flags
+ * @returns {string[] | object[]}
+ */
+function parseFlags(flags) {
+  const params = [];
+  for (const flag of flags) {
+    if (flag.type === 1) {
+      const sub = { name: flag.name, desc: flag.description };
+      if (flag.options) sub.params = parseFlags(flag.options);
+      params.push(sub);
+    } else {
+      if (!flag.classic) continue;
+      params.push(`${flag.required ? "[" : "{"}${flag.name}${flag.required ? "]" : "}"}`);
+    }
+  }
+  return params;
+}
+
 export function update() {
   const commandArray = [];
   const privateCommandArray = [];
@@ -84,10 +104,11 @@ export function update() {
         category: cmdInfo.category,
         description: cmd.description,
         aliases: cmd.aliases,
-        params: cmd.args,
+        params: parseFlags(cmd.flags),
         flags: cmd.flags,
         slashAllowed: cmd.slashAllowed,
         directAllowed: cmd.directAllowed,
+        userAllowed: cmd.userAllowed,
         adminOnly: cmd.adminOnly,
         type: cmdInfo.type
       };
@@ -97,7 +118,8 @@ export function update() {
       (cmdInfo.adminOnly ? privateCommandArray : commandArray).push({
         name: name,
         type: cmdInfo.type,
-        dm_permission: cmdInfo.directAllowed
+        integrationTypes: [0, cmdInfo.userAllowed ? 1 : null].filter(v => v !== null),
+        contexts: [0, cmdInfo.directAllowed ? 1 : null, 2].filter(v => v !== null)
       });
     } else if (cmdInfo?.slashAllowed) {
       (cmdInfo.adminOnly ? privateCommandArray : commandArray).push({
@@ -105,7 +127,8 @@ export function update() {
         type: cmdInfo.type,
         description: cmdInfo.description,
         options: cmdInfo.flags,
-        dm_permission: cmdInfo.directAllowed
+        integrationTypes: [0, cmdInfo.userAllowed ? 1 : null].filter(v => v !== null),
+        contexts: [0, cmdInfo.directAllowed ? 1 : null, 2].filter(v => v !== null)
       });
     }
   }

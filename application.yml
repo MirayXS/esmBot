@@ -5,7 +5,7 @@ lavalink:
   server:
     password: "youshallnotpass"
     sources:
-      youtube: true
+      youtube: false # Disabled to be compatible with the youtube-source plugin
       bandcamp: true
       soundcloud: true
       twitch: true
@@ -13,17 +13,29 @@ lavalink:
       http: true
     bufferDurationMs: 400
     youtubePlaylistLoadLimit: 6 # Number of pages at 100 each
+    resamplingQuality: MEDIUM
     playerUpdateInterval: 1
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
     gc-warnings: true
   plugins:
-    - dependency: "com.github.esmBot:lava-xm-plugin:v0.2.2"
-      repository: "https://jitpack.io"
-    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.0.0"
+    - dependency: "net.esmbot:lava-xm-plugin:0.2.5"
+      repository: "https://repo.projectlounge.pw/maven/releases"
+    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
       repository: "https://maven.lavalink.dev/releases"
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.3.0"
+      snapshot: false
 
 plugins:
+  youtube:
+    enabled: true
+    allowSearch: true
+    allowDirectVideoIds: true
+    allowDirectPlaylistIds: true
+    clients:
+      - MUSIC
+      - ANDROID
+      - WEB
   lavasrc:
     providers:
       - "ytsearch:\"%ISRC%\""
@@ -41,6 +53,13 @@ plugins:
         mediaAPIToken: "your api token"
     deezer:
         masterDecryptionKey: "go looking for this somewhere"
+  xm:
+    ampFactor: 1
+    interpolation: 1
+    vblank: false
+    fx9Bug: false
+    fixSampleLoop: false
+    amigaMixer: true
 
 logging:
   file:

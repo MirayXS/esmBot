@@ -4,7 +4,7 @@ import Command from "../../classes/command.js";
 
 class CountCommand extends Command {
   async run() {
-    if (this.guild && !this.permissions.has("EMBED_LINKS")) {
+    if (!this.permissions.has("EMBED_LINKS")) {
       this.success = false;
       return "I don't have the `Embed Links` permission!";
     }
@@ -46,7 +46,6 @@ class CountCommand extends Command {
   }
 
   static description = "Gets how many times every command was used";
-  static args = ["{mention/id}"];
   static aliases = ["counts"];
   static dbRequired = true;
 }

@@ -10,7 +10,7 @@ class PrefixCommand extends Command {
         return "Setting a per-guild prefix is not possible on a stateless instance of esmBot!";
       }
       const owners = process.env.OWNER.split(",");
-      if (!this.member.permissions.has("ADMINISTRATOR") && !owners.includes(this.member.id)) {
+      if (!this.memberPermissions.has("ADMINISTRATOR") && !owners.includes(this.member.id)) {
         this.success = false;
         return "You need to be an administrator to change the bot prefix!";
       }
@@ -23,7 +23,12 @@ class PrefixCommand extends Command {
 
   static description = "Checks/changes the server prefix";
   static aliases = ["setprefix", "changeprefix", "checkprefix"];
-  static args = ["{prefix}"];
+  static flags = [{
+    name: "prefix",
+    type: 3,
+    description: "The server prefix you want to use",
+    classic: true
+  }];
   static slashAllowed = false;
 }
 

@@ -9,7 +9,7 @@ const isWaiting = new Map();
 /**
  * @param {import("oceanic.js").Client} client
  * @param {import("oceanic.js").Member} member
- * @param {import("oceanic.js").VoiceChannel | import("oceanic.js").StageChannel} oldChannel
+ * @param {import("oceanic.js").VoiceChannel | import("oceanic.js").StageChannel | null} oldChannel
  */
 export default async (client, member, oldChannel) => {
   // block if client is not ready yet
@@ -97,18 +97,16 @@ export default async (client, member, oldChannel) => {
 
 /**
  * @param {import("oceanic.js").Client} client
- * @param {{ player?: import("shoukaku").Player; host?: string; voiceChannel: any; originalChannel: any; loop?: boolean; shuffle?: boolean; playMessage?: import("oceanic.js").Message; }} connection
+ * @param {{ player?: import("shoukaku").Player; host?: string; voiceChannel: import("oceanic.js").VoiceChannel; originalChannel: import("oceanic.js").GuildChannel; loop?: boolean; shuffle?: boolean; playMessage?: import("oceanic.js").Message; }} connection
  */
 async function handleExit(client, connection) {
-  if (connection.originalChannel instanceof GuildChannel) {
-    try {
-      await manager.leaveVoiceChannel(connection.originalChannel.guildID);
-    } catch {
-      logger.warn(`Failed to leave voice channel ${connection.originalChannel.guildID}`);
-    }
-    players.delete(connection.originalChannel.guildID);
-    queues.delete(connection.originalChannel.guildID);
-    skipVotes.delete(connection.originalChannel.guildID);
+  players.delete(connection.originalChannel.guildID);
+  queues.delete(connection.originalChannel.guildID);
+  skipVotes.delete(connection.originalChannel.guildID);
+  try {
+    await manager.leaveVoiceChannel(connection.originalChannel.guildID);
+  } catch {
+    logger.warn(`Failed to leave voice channel ${connection.originalChannel.guildID}`);
   }
   try {
     await client.rest.channels.createMessage(connection.originalChannel.id, {

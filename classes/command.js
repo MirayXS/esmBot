@@ -1,4 +1,4 @@
-import { Constants } from "oceanic.js";
+import { Constants, Permission } from "oceanic.js";
 
 class Command {
   /**
@@ -18,7 +18,8 @@ class Command {
       this.guild = options.message.guild;
       this.author = options.message.author;
       this.member = options.message.member;
-      this.permissions = this.channel?.permissionsOf?.(client.user.id) ?? Constants.AllTextPermissions;
+      this.permissions = this.channel?.permissionsOf?.(client.user.id) ?? new Permission(Constants.AllPermissions);
+      this.memberPermissions = this.member?.permissions ?? new Permission(Constants.AllPermissions);
       this.content = options.content;
       this.options = options.specialArgs;
       this.reference = {
@@ -36,10 +37,15 @@ class Command {
       this.interaction = options.interaction;
       this.args = [];
       this.channel = options.interaction.channel ?? { id: options.interaction.channelID, guildID: options.interaction.guildID };
-      this.guild = options.interaction.guild;
+      if (!options.interaction.authorizingIntegrationOwners || options.interaction.authorizingIntegrationOwners[0] !== undefined) {
+        this.guild = options.interaction.guild;
+      } else {
+        this.guild = null;
+      }
       this.author = options.interaction.user;
       this.member = options.interaction.member;
       this.permissions = options.interaction.appPermissions;
+      this.memberPermissions = options.interaction.memberPermissions ?? new Permission(Constants.AllPermissions);
       this.options = options.interaction.data.options.raw.reduce((obj, item) => {
         obj[item.name] = item.value;
         return obj;
@@ -73,10 +79,10 @@ class Command {
 
   static description = "No description found";
   static aliases = [];
-  static args = [];
   static flags = [];
   static slashAllowed = true;
   static directAllowed = true;
+  static userAllowed = true;
   static adminOnly = false;
 }
 

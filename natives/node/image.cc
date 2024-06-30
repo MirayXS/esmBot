@@ -1,6 +1,5 @@
 #include <napi.h>
 
-#include <iostream>
 #include <map>
 #include <string>
 
@@ -53,7 +52,7 @@ Napi::Value ProcessImage(const Napi::CallbackInfo& info) {
         Arguments[property] = val.ToString().As<Napi::String>().Utf8Value();
       } else if (val.IsNumber()) {
         auto num = val.ToNumber();
-        if (isNapiValueInt(env, num) && property != "yscale") { // dumb hack
+        if (isNapiValueInt(env, num) && property != "yscale" && property != "tolerance" && property != "pos") { // dumb hack
           Arguments[property] = num.Int32Value();
         } else {
           Arguments[property] = num.FloatValue();
@@ -103,6 +102,9 @@ void ImgInit([[maybe_unused]] const Napi::CallbackInfo& info) {
   Magick::InitializeMagick("");
 #endif
   if (vips_init("")) vips_error_exit(NULL);
+#if VIPS_MAJOR_VERSION >= 8 && VIPS_MINOR_VERSION >= 13
+  vips_block_untrusted_set(true);
+#endif
   return;
 }
 

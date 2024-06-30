@@ -1,7 +1,8 @@
-if (Number.parseInt(process.versions.node.split(".")[0]) < 18) {
+const [ major, minor ] = process.versions.node.split(".").map(Number);
+if (major < 18 || (major === 18 && minor < 20)) {
   console.error(`You are currently running Node.js version ${process.version}.
-esmBot requires Node.js version 18 or above.
-Please refer to step 3 of the setup guide: https://docs.esmbot.net/setup/#3-install-nodejs`);
+esmBot requires Node.js version 18.20.0 or above.
+Please refer to step 2 of the setup guide: https://docs.esmbot.net/setup/#2-install-nodejs`);
   process.exit(1);
 }
 if (process.platform === "win32") {
@@ -13,6 +14,18 @@ esmBot will continue to run past this message in 5 seconds, but keep in mind tha
 
 // load config from .env file
 import "dotenv/config";
+
+if (!process.env.TOKEN) {
+  console.error(`No token was provided!
+esmBot requires a valid Discord bot token to function. Generate a new token from the "Bot" tab in your Discord application settings and paste it into your .env file.`);
+  process.exit(1);
+}
+
+if (process.env.TOKEN.length < 59) {
+  console.error(`Incorrect bot token length!
+You may have accidentally copied the OAuth2 client secret. Try generating a new token from the "Bot" tab in your Discord application settings.`);
+  process.exit(1);
+}
 
 import { reloadImageConnections } from "./utils/image.js";
 
@@ -38,8 +51,8 @@ import { reload, connect, connected } from "./utils/soundplayer.js";
 import { endBroadcast, startBroadcast } from "./utils/misc.js";
 import { parseThreshold } from "./utils/tempimages.js";
 
-import commandConfig from "./config/commands.json" assert { type: "json" };
-import packageJson from "./package.json" assert { type: "json" };
+import commandConfig from "./config/commands.json" with { type: "json" };
+import packageJson from "./package.json" with { type: "json" };
 process.env.ESMBOT_VER = packageJson.version;
 
 const intents = [
@@ -152,7 +165,9 @@ const client = new Client({
   },
   collectionLimits: {
     messages: 50,
-    channels: !commandConfig.types.classic ? 0 : Number.POSITIVE_INFINITY
+    channels: !commandConfig.types.classic ? 0 : Number.POSITIVE_INFINITY,
+    guildThreads: !commandConfig.types.classic ? 0 : Number.POSITIVE_INFINITY,
+    emojis: 0
   }
 });
 
@@ -189,7 +204,7 @@ if (process.env.PM2_USAGE) {
       pm2Bus.on("process:msg", async (packet) => {
         switch (packet.data?.type) {
           case "reload":
-            await load(client, paths.get(packet.data.message), true);
+            await load(client, paths.get(packet.data.message));
             break;
           case "soundreload":
             await reload(client);
