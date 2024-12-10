@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../config/">
+        <link rel="prev" href="../bun/">
       
       
-        <link rel="next" href="../bun/">
+        <link rel="next" href="../postgresql/">
       
       
       <link rel="icon" href="../assets/esmbot.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Custom Commands - esmBot</title>
+        <title>Containers - esmBot</title>
       
     
     
@@ -81,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#custom-commands" class="md-skip">
+        <a href="#containers" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Custom Commands
+              Containers
             
           </span>
         </div>
@@ -280,30 +280,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Custom Commands
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../custom-commands/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -312,53 +292,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#directory-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Directory Structure
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Command Structure
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-run-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      The run Function
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -387,10 +320,19 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../containers/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -399,6 +341,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -441,96 +384,40 @@
   
 
 
-<h1 id="custom-commands">Custom Commands</h1>
-<p>esmBot has a powerful and flexible command handler, allowing you to create new commands and categories simply by creating new files. This page will provide a reference for creating new commands.</p>
-<h2 id="directory-structure">Directory Structure</h2>
-<p>The bot loads commands from subdirectories inside of the <code>commands</code> directory, which looks something like this by default:
-<div class="highlight"><pre><span></span><code>commands/
-  - fun
-    &gt; cat.js
-    &gt; ...
-  - general
-    &gt; help.js
-    &gt; ping.js
-    &gt; ...
-  - image-editing
-    &gt; caption.js
-    &gt; speed.js
-    &gt; ...
+<h1 id="containers">Containers</h1>
+<p>You can run the bot as well as its dependencies as a series of containers using Docker or Podman. This can allow for a slightly easier setup if you're able to run one of those two container runtimes; however, the manual setup is still recommended if you want more control over the bot.</p>
+<p>To start, install <a href="https://docs.docker.com/engine/install/#server">Docker</a> or <a href="https://podman.io/docs/installation">Podman</a> on your system via the linked instructions. If using Podman, you'll also need to install <a href="https://github.com/containers/podman-compose/blob/main/README.md#installation">podman-compose</a>.</p>
+<p>Once you've installed one of those, you should clone the esmBot repo:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>~
+git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/esmBot/esmBot
+<span class="nb">cd</span><span class="w"> </span>esmBot
 </code></pre></div>
-As you can see, each command is grouped into categories, which are represented by subdirectories. To create a new category, you can simply create a new directory inside of the <code>commands</code> directory, and to create a new command, you can create a new JS file under one of those subdirectories.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>The <code>message</code> and <code>user</code> categories are special; instead of being registered as classic or slash commands, commands in these categories are registered as right-click context menu commands. Commands in the <code>message</code> category show when selecting messages, while commands in the <code>user</code> category show when selecting users.</p>
-</div>
-<h2 id="command-structure">Command Structure</h2>
-<p>It's recommended to use the <code>Command</code> class located in <code>classes/command.js</code> to create a new command in most cases. This class provides various parameters and fields that will likely be useful when creating a command. Here is a simple example of a working command file:
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Command</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../classes/command.js&quot;</span><span class="p">;</span>
-
-<span class="kd">class</span><span class="w"> </span><span class="nx">HelloCommand</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Command</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">run</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Hello world!&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="nx">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;A simple command example&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="nx">aliases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;helloworld&quot;</span><span class="p">];</span>
+Modify the <code>.env</code> file as described in step 6 of the manual setup. Make sure to change the <code>DB</code> option to this, however:
+<div class="highlight"><pre><span></span><code>DB=postgresql://esmbot:verycoolpass100@postgres:5432/esmbot
+</code></pre></div>
+You should then modify the <code>config/servers.json</code> file to change the IP addresses of the servers to match the containers. Example:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;lava&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lavalink:2333&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;youshallnotpass&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;image&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;server&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;verycoolpass100&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;tls&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
-
-<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">HelloCommand</span><span class="p">;</span>
 </code></pre></div>
-As you can see, the first thing we do is import the Command class. We then create a new class for the command that extends that class to provide the needed parameters. We then define the command function, which is named <code>run</code>. Some static parameters, including the command description and an alias for the command, <code>helloworld</code>, are also defined. Finally, once everything in the command class is defined, we export the new class to be loaded as a module by the command handler.</p>
-<p>The default command name is the same as the filename that you save it as, excluding the <code>.js</code> file extension. If you ever want to change the name of the command, just rename the file.</p>
-<p>The parameters available to your command consist of the following:</p>
-<ul>
-<li><code>this.client</code>: An instance of an Oceanic <a href="https://docs.oceanic.ws/latest/classes/Client.Client.html"><code>Client</code></a>, useful for getting info or performing lower-level communication with the Discord API.</li>
-<li><code>this.origOptions</code>: The raw options object provided to the command by the command handler.</li>
-<li><code>this.type</code>: The type of message that activated the command. Can be "classic" (a regular message) or "application" (slash/context menu commands).</li>
-<li><code>this.channel</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/TextChannel.TextChannel.html"><code>TextChannel</code></a> object of the channel that the command was run in, useful for getting info about a server and how to respond to a message. Partial when classic commands are disabled.</li>
-<li><code>this.guild</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/Guild.Guild.html"><code>Guild</code></a> object of the guild that the command was run in. This is undefined in DMs.</li>
-<li><code>this.author</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/User.User.html"><code>User</code></a> object of the user who ran the command.</li>
-<li><code>this.member</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/Member.Member.html"><code>Member</code></a> object of the server member who ran the command. When running the command outside of a server, this parameter is undefined.</li>
-<li><code>this.permissions</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/Permission.Permission.html"><code>Permission</code></a> object of the bot's current permissions for a channel.</li>
-<li><code>this.memberPermissions</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/Permission.Permission.html"><code>Permission</code></a> object of the user who ran the commands's current permissions for a channel.</li>
-<li><code>this.locale</code>: The language/locale being used. For classic commands, this is always the value of the <code>LOCALE</code> environment variable (or "en-US" if it hasn't been set), and for application commands this is the language set by the user that ran the command.</li>
-<li><code>this.cmdName</code>: The name of the running command. This should always be the same as the running command's filename without the .js extension.</li>
-<li><code>this.options</code>: When run as a "classic" command, this is an object of special arguments (e.g. <code>--argument=true</code>) passed to the command. These arguments are stored in a key/value format, so following the previous example, <code>this.options.argument</code> would return true. When run as a slash command, this is an object of every argument passed to the command.</li>
-</ul>
-<p>Some options are only available depending on the context/original message type, which can be checked with <code>this.type</code>. The options only available with "classic" messages are listed below:</p>
-<ul>
-<li><code>this.message</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/Message.Message.html"><code>Message</code></a> object of the message that the command was run from, useful for interaction.</li>
-<li><code>this.args</code>: An array of text arguments passed to the command.</li>
-<li><code>this.content</code>: A string of the raw content of the command message, excluding the prefix and command name.</li>
-<li><code>this.reference</code>: An object that's useful if you ever decide to reply to a user inside the command. You can use <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign"><code>Object.assign</code></a> to combine your message content with this parameter.</li>
-</ul>
-<p>The options only available with application (slash and context menu) commands are listed below:</p>
-<ul>
-<li><code>this.interaction</code>: An Oceanic <a href="https://docs.oceanic.ws/latest/classes/CommandInteraction.CommandInteraction.html"><code>CommandInteraction</code></a> object of the incoming slash command data.</li>
-<li><code>this.success</code>: A boolean value that causes the bot to respond with a normal message when set to <code>true</code>, or an "ephemeral" message (a message that's only visible to the person who ran the command) when set to <code>false</code>.</li>
-<li><code>this.edit</code>: A boolean value that causes the bot to respond by editing the original message when set to <code>true</code>, or by creating a followup message when set to <code>false</code>.</li>
-</ul>
-<p>Some static fields are also available and can be set depending on your command. These fields are listed below:</p>
-<ul>
-<li><code>description</code>: Your command's description, which is shown in the help command.</li>
-<li><code>aliases</code>: An array of command aliases. People will be able to run the command using these as well as the normal command name.</li>
-<li><code>flags</code>: An array of objects specifying command flags, or special arguments, that will be shown when running <code>help &lt;command&gt;</code> or a slash command. Example:
-<div class="highlight"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="nx">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;argument&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="nx">Constants</span><span class="p">.</span><span class="nx">ApplicationCommandOptionTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span><span class="w"> </span><span class="c1">// translates to 3, see https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type</span>
-<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Does a thing&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="p">...</span>
-<span class="p">}];</span>
-</code></pre></div></li>
-<li><code>ephemeral</code>: Specifies whether or not the command output should be ephemeral.</li>
-<li><code>slashAllowed</code>: Specifies whether or not the command is available via slash commands.</li>
-<li><code>directAllowed</code>: Specifies whether or not a command is available in direct messages.</li>
-<li><code>userAllowed</code>: Specifies whether or not a command is available when run in a user installation context.</li>
-<li><code>adminOnly</code>: Specifies whether or not a command should be limited to the bot owner(s).</li>
-</ul>
-<p>In addition, a few helper functions are available inside the <code>Command</code> class:
-- <code>this.acknowledge()</code>: Sends a typing indicator in the current channel. Only works with classic commands.
-- <code>this.getString(key, returnNull)</code>: Gets a localized string for the input locale. If <code>returnNull</code> is set to false (the default) and the string does not exist on the input or default locales, the <code>key</code> string will be returned; otherwise, <code>null</code> will be returned.</p>
-<h2 id="the-run-function">The <code>run</code> Function</h2>
-<p>The main JS code of your command is specified in the <code>run</code> function. This function should return a <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise"><code>Promise</code></a> of your command output, which is why the <code>run</code> function <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/async_function">is an async function by default</a>. The return value inside the <code>Promise</code> should be either a string or an object; you should return a string whenever you intend to reply with plain text, or an object if you intend to reply with something else, such as an embed or attachment.</p>
+Finally, start the bot by running the following command (click to select your container runtime):</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Podman</label><label for="__tabbed_1_2">Docker</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>podman-compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+</div>
+</div>
+</div>
 
 
 
@@ -551,7 +438,7 @@ As you can see, the first thing we do is import the Command class. We then creat
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 7, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 30, 2024</span>
   </span>
 
     
