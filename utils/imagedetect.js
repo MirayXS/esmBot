@@ -95,13 +95,15 @@ const getImage = async (image, image2, video, spoiler = false, extraReturnTypes 
       } else {
         return;
       }
+      payload.type = "image/gif";
     } else if (giphyURLs.includes(host)) {
-      // Can result in an HTML page instead of a GIF
-      payload.path = `https://media0.giphy.com/media/${image2.split("/")[4].split("-").pop()}/giphy.gif`;
+      // Can result in an HTML page instead of a WEBP
+      payload.path = `https://media0.giphy.com/media/${image2.split("/")[4].split("-").pop()}/giphy.webp`;
+      payload.type = "image/webp";
     } else if (giphyMediaURLs.includes(host)) {
-      payload.path = `https://media0.giphy.com/media/${image2.split("/")[4]}/giphy.gif`;
+      payload.path = `https://media0.giphy.com/media/${image2.split("/")[4]}/giphy.webp`;
+      payload.type = "image/webp";
     }
-    payload.type = "image/gif";
   } else {
     let result;
     if ((imageURL.host === "cdn.discordapp.com" || imageURL.host === "media.discordapp.net") && (imageURL.pathname.match(/^\/attachments\/\d+\/\d+\//))) {
@@ -185,9 +187,9 @@ function isAttachmentExpired(url) {
 /**
  * Checks for the latest message containing an image and returns the URL of the image.
  * @param {import("oceanic.js").Client} client
- * @param {import("oceanic.js").Message | undefined} cmdMessage
- * @param {import("oceanic.js").CommandInteraction | undefined} interaction
- * @param {{ image: string; link: any; }} options
+ * @param {import("oceanic.js").Message | null | undefined} cmdMessage
+ * @param {import("oceanic.js").CommandInteraction | null | undefined} interaction
+ * @param {{ image?: string; link?: string; } | null | undefined} options
  * @returns {Promise<{ path: string; type?: string; url: string; name: string; } | import("oceanic.js").StickerItem | undefined>}
  */
 export default async (client, cmdMessage, interaction, options, extraReturnTypes = false, video = false, sticker = false, singleMessage = false) => {
@@ -218,7 +220,7 @@ export default async (client, cmdMessage, interaction, options, extraReturnTypes
   }
   if (!singleMessage && (cmdMessage || interaction?.authorizingIntegrationOwners?.[0] !== undefined)) {
     // if there aren't any replies or interaction attachments then iterate over the last few messages in the channel
-    const channel = (interaction ? interaction : cmdMessage)?.channel ?? await client.rest.channels.get((interaction ? interaction : cmdMessage).channelID).catch(e => {
+    const channel = (interaction ? interaction : cmdMessage)?.channel ?? await client.rest.channels.get((interaction ?? cmdMessage).channelID).catch(e => {
       logger.warn(`Failed to get a text channel: ${e}`);
     });
     if (!(channel instanceof TextableChannel) && !(channel instanceof ThreadChannel) && !(channel instanceof PrivateChannel)) return;

@@ -1,13 +1,14 @@
-import paginator from "../../utils/pagination/pagination.js";
-import serversConfig from "../../config/servers.json" with { type: "json" };
-import { random } from "../../utils/misc.js";
-import Command from "../../classes/command.js";
+import paginator from "#pagination";
+import serversConfig from "#config/servers.json" with { type: "json" };
+import { random } from "#utils/misc.js";
+import Command from "#cmd-classes/command.js";
+import { Constants } from "oceanic.js";
 
 class ImageSearchCommand extends Command {
   async run() {
     this.success = false;
     if (!this.permissions.has("EMBED_LINKS")) return this.getString("permissions.noEmbedLinks");
-    const query = this.options.query ?? this.args.join(" ");
+    const query = this.getOptionString("query") ?? this.args.join(" ");
     if (!query || !query.trim()) return this.getString("commands.responses.image.noInput");
     await this.acknowledge();
     const embeds = [];
@@ -19,9 +20,14 @@ class ImageSearchCommand extends Command {
         embeds: [{
           title: value.title,
           url: encodeURI(value.url),
-          color: 16711680,
+          color: 0xff0000,
           footer: {
-            text: `Page ${i + 1} of ${images.length}`
+            text: this.getString("pagination.page", {
+              params: {
+                page: (i + 1).toString(),
+                amount: images.length.toString()
+              }
+            })
           },
           image: {
             url: encodeURI(value.img_src)
@@ -39,7 +45,7 @@ class ImageSearchCommand extends Command {
 
   static flags = [{
     name: "query",
-    type: 3,
+    type: Constants.ApplicationCommandOptionTypes.STRING,
     description: "The query you want to search for",
     classic: true,
     required: true

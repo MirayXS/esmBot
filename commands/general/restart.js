@@ -1,10 +1,10 @@
-import Command from "../../classes/command.js";
+import Command from "#cmd-classes/command.js";
 
 class RestartCommand extends Command {
   // eh, screw it
   run() {
     return new Promise((resolve) => {
-      const owners = process.env.OWNER.split(",");
+      const owners = process.env.OWNER?.split(",") ?? [];
       if (!owners.includes(this.author.id)) {
         this.success = false;
         resolve(this.getString("commands.responses.restart.owner"));

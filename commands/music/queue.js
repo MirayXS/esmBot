@@ -1,7 +1,7 @@
 import format from "format-duration";
-import { nodes } from "../../utils/soundplayer.js";
-import paginator from "../../utils/pagination/pagination.js";
-import MusicCommand from "../../classes/musicCommand.js";
+import { nodes } from "#utils/soundplayer.js";
+import paginator from "#pagination";
+import MusicCommand from "#cmd-classes/musicCommand.js";
 
 class QueueCommand extends MusicCommand {
   async run() {
@@ -32,9 +32,14 @@ class QueueCommand extends MusicCommand {
             name: this.getString("sound.queue"),
             iconURL: this.client.user.avatarURL()
           },
-          color: 16711680,
+          color: 0xff0000,
           footer: {
-            text: `Page ${i + 1} of ${groups.length}`
+            text: this.getString("pagination.page", {
+              params: {
+                page: i + 1,
+                amount: groups.length
+              }
+            })
           },
           fields: [{
             name: `🎶 ${this.getString("sound.nowPlaying")}`,

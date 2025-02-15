@@ -1,9 +1,9 @@
 import { Constants } from "oceanic.js";
-import ImageCommand from "../../classes/imageCommand.js";
+import ImageCommand from "#cmd-classes/imageCommand.js";
 
 class SlowCommand extends ImageCommand {
   params() {
-    const speed = Number.parseInt(this.options.multiplier ?? this.args[0]);
+    const speed = this.getOptionInteger("multiplier") ?? Number.parseInt(this.args[0]);
     return {
       slow: true,
       speed: Number.isNaN(speed) ? 2 : speed

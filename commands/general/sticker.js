@@ -1,5 +1,5 @@
-import Command from "../../classes/command.js";
-import imagedetect from "../../utils/imagedetect.js";
+import Command from "#cmd-classes/command.js";
+import imagedetect from "#utils/imagedetect.js";
 
 class StickerCommand extends Command {
   async run() {
@@ -7,7 +7,7 @@ class StickerCommand extends Command {
       this.success = false;
       return this.getString("permissions.noEmbedLinks");
     }
-    const result = await imagedetect(this.client, this.message, this.interaction, this.options, false, false, true);
+    const result = await imagedetect(this.client, this.message, this.interaction, null, false, false, true);
     this.success = false;
     if (!result) return this.getString("commands.responses.sticker.noInput");
     if (result.format_type === 1) { // PNG
@@ -18,7 +18,7 @@ class StickerCommand extends Command {
       this.success = true;
       return {
         embeds: [{
-          color: 16711680,
+          color: 0xff0000,
           description: `[${this.getString("commands.responses.sticker.apng")}](https://cdn.discordapp.com/stickers/${result.id}.png)`,
           image: {
             url: `https://cdn.discordapp.com/stickers/${result.id}.png`

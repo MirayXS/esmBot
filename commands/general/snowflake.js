@@ -1,4 +1,5 @@
-import Command from "../../classes/command.js";
+import { Constants } from "oceanic.js";
+import Command from "#cmd-classes/command.js";
 
 class SnowflakeCommand extends Command {
   async run() {
@@ -15,7 +16,7 @@ class SnowflakeCommand extends Command {
   static aliases = ["timestamp", "snowstamp", "snow"];
   static flags = [{
     name: "id",
-    type: 3,
+    type: Constants.ApplicationCommandOptionTypes.STRING,
     description: "A snowflake ID",
     classic: true
   }];

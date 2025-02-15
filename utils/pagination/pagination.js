@@ -2,6 +2,7 @@ import InteractionCollector from "./awaitinteractions.js";
 import { collectors } from "../collections.js";
 import logger from "../logger.js";
 import { getString } from "../i18n.js";
+import { Constants } from "oceanic.js";
 
 /**
  * @param {import("oceanic.js").Client} client
@@ -23,11 +24,11 @@ export default async (client, info, pages) => {
   let page = 0;
   const components = {
     components: [{
-      type: 1,
+      type: Constants.ComponentTypes.ACTION_ROW,
       components: [
         {
-          type: 2,
-          label: getString("pagination.back", info.type === "application" ? info.interaction.locale : undefined),
+          type: Constants.ComponentTypes.BUTTON,
+          label: getString("pagination.back", { locale: info.type === "application" ? info.interaction.locale : undefined }),
           emoji: {
             id: null,
             name: "◀"
@@ -36,8 +37,8 @@ export default async (client, info, pages) => {
           customID: "back"
         },
         {
-          type: 2,
-          label: getString("pagination.forward", info.type === "application" ? info.interaction.locale : undefined),
+          type: Constants.ComponentTypes.BUTTON,
+          label: getString("pagination.forward", { locale: info.type === "application" ? info.interaction.locale : undefined }),
           emoji: {
             id: null,
             name: "▶"
@@ -46,8 +47,8 @@ export default async (client, info, pages) => {
           customID: "forward"
         },
         {
-          type: 2,
-          label: getString("pagination.jump", info.type === "application" ? info.interaction.locale : undefined),
+          type: Constants.ComponentTypes.BUTTON,
+          label: getString("pagination.jump", { locale: info.type === "application" ? info.interaction.locale : undefined }),
           emoji: {
             id: null,
             name: "🔢"
@@ -56,8 +57,8 @@ export default async (client, info, pages) => {
           customID: "jump"
         },
         {
-          type: 2,
-          label: getString("pagination.delete", info.type === "application" ? info.interaction.locale : undefined),
+          type: Constants.ComponentTypes.BUTTON,
+          label: getString("pagination.delete", { locale: info.type === "application" ? info.interaction.locale : undefined }),
           emoji: {
             id: null,
             name: "🗑"
@@ -119,11 +120,11 @@ export default async (client, info, pages) => {
             interactionCollector.extend();
             const jumpComponents = {
               components: [{
-                type: 1,
+                type: Constants.ComponentTypes.ACTION_ROW,
                 components: [{
-                  type: 3,
+                  type: Constants.ComponentTypes.STRING_SELECT,
                   customID: "seekDropdown",
-                  placeholder: getString("pagination.pageNumber", interaction.locale),
+                  placeholder: getString("pagination.pageNumber", { locale: interaction.locale }),
                   options: []
                 }]
               }]
@@ -135,7 +136,7 @@ export default async (client, info, pages) => {
               };
               jumpComponents.components[0].components[0].options[i] = payload;
             }
-            const followup = await interaction.createFollowup(Object.assign({ content: getString("pagination.jumpTo", interaction.locale), flags: 64 }, jumpComponents));
+            const followup = await interaction.createFollowup(Object.assign({ content: getString("pagination.jumpTo", { locale: interaction.locale }), flags: 64 }, jumpComponents));
             const askMessage = await followup.getMessage();
             const dropdownCollector = new InteractionCollector(client, askMessage);
             let ended = false;
@@ -189,7 +190,7 @@ export default async (client, info, pages) => {
         }
       } else {
         await interaction.createFollowup({
-          content: getString("pagination.cantChangePage", interaction.locale),
+          content: getString("pagination.cantChangePage", { locale: interaction.locale }),
           flags: 64
         });
       }

@@ -1,10 +1,14 @@
-import Command from "../../classes/command.js";
-import imageDetect from "../../utils/imagedetect.js";
+import { Constants } from "oceanic.js";
+import Command from "#cmd-classes/command.js";
+import imageDetect from "#utils/imagedetect.js";
 
 class RawCommand extends Command {
   async run() {
     await this.acknowledge();
-    const image = await imageDetect(this.client, this.message, this.interaction, this.options);
+    const image = await imageDetect(this.client, this.message, this.interaction, {
+      image: this.getOptionString("image"),
+      link: this.getOptionString("link")
+    });
     if (image === undefined) {
       this.success = false;
       return this.getString("commands.responses.raw.noInput");
@@ -16,11 +20,11 @@ class RawCommand extends Command {
   static aliases = ["giflink", "imglink", "getimg", "rawgif", "rawimg"];
   static flags = [{
     name: "image",
-    type: 11,
+    type: Constants.ApplicationCommandOptionTypes.ATTACHMENT,
     description: "An image/GIF attachment"
   }, {
     name: "link",
-    type: 3,
+    type: Constants.ApplicationCommandOptionTypes.STRING,
     description: "An image/GIF URL"
   }];
 }

@@ -1,11 +1,11 @@
 import { Constants } from "oceanic.js";
-import ImageCommand from "../../classes/imageCommand.js";
+import ImageCommand from "#cmd-classes/imageCommand.js";
 
 class UncaptionCommand extends ImageCommand {
   params() {
-    const tolerance = Number.parseFloat(this.options.tolerance);
+    const tolerance = this.getOptionNumber("tolerance");
     return {
-      tolerance: Number.isNaN(tolerance) ? 0.95 : tolerance
+      tolerance: tolerance == null || Number.isNaN(tolerance) ? 0.95 : tolerance
     };
   }
 

@@ -5,16 +5,14 @@
 using namespace std;
 using namespace vips;
 
-ArgumentMap Mirror(const string& type, string& outType, const char* bufferdata, size_t bufferLength, ArgumentMap arguments, size_t& dataSize)
+ArgumentMap Mirror(const string& type, string& outType, const char* bufferdata, size_t bufferLength, ArgumentMap arguments, bool* shouldKill)
 {
   bool vertical = GetArgumentWithFallback<bool>(arguments, "vertical", false);
   bool first = GetArgumentWithFallback<bool>(arguments, "first", false);
 
   VImage in = VImage::new_from_buffer(
                   bufferdata, bufferLength, "",
-                  GetInputOptions(type, false, false))
-                  .colourspace(VIPS_INTERPRETATION_sRGB);
-  if (!in.has_alpha()) in = in.bandjoin(255);
+                  GetInputOptions(type, false, false));
 
   int nPages = type == "avif" ? 1 : vips_image_get_n_pages(in.get_image());
 
@@ -64,11 +62,15 @@ ArgumentMap Mirror(const string& type, string& outType, const char* bufferdata, 
     }
   }
 
+  SetupTimeoutCallback(out, shouldKill);
+
   char *buf;
+  size_t dataSize = 0;
   out.write_to_buffer(("." + outType).c_str(), reinterpret_cast<void**>(&buf), &dataSize);
 
   ArgumentMap output;
   output["buf"] = buf;
+  output["size"] = dataSize;
 
   return output;
 }

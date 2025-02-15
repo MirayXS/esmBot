@@ -1,5 +1,5 @@
-import Command from "../../classes/command.js";
-import { reloadImageConnections } from "../../utils/image.js";
+import Command from "#cmd-classes/command.js";
+import { reloadImageConnections } from "#utils/image.js";
 
 class ImageReloadCommand extends Command {
   async run() {
@@ -19,7 +19,7 @@ class ImageReloadCommand extends Command {
           }
         });
       }
-      return `Successfully connected to ${length} image server(s).`;
+      return this.getString("commands.responses.imagereload.connected", { params: { length } });
     }
     return this.getString("commands.responses.imagereload.couldNotConnect");
   }

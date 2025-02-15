@@ -1,10 +1,11 @@
-import { Constants, Permission } from "oceanic.js";
-import { getString } from "../utils/i18n.js";
+import { Constants, Permission, TextableChannel } from "oceanic.js";
+import { getString } from "#utils/i18n.js";
+import { cleanInteraction, cleanMessage } from "#utils/misc.js";
 
 class Command {
   /**
    * @param {import("oceanic.js").Client} client
-   * @param {{ type: string; args: []; message: import("oceanic.js").Message; content: string; specialArgs: {}; interaction: import("oceanic.js").CommandInteraction }} options
+   * @param {{ type: string; args: []; message: import("oceanic.js").Message; content: string; specialArgs: {}; interaction: import("oceanic.js").CommandInteraction; cmdName: string; locale?: string }} options
    */
   constructor(client, options) {
     this.client = client;
@@ -15,13 +16,17 @@ class Command {
     this.edit = false;
     if (options.type === "classic") {
       this.message = options.message;
-      this.locale = process.env.LOCALE ?? "en-US";
+      this.locale = options.locale ?? process.env.LOCALE ?? "en-US";
       this.cmdName = options.cmdName;
       this.channel = options.message.channel;
       this.guild = options.message.guild;
       this.author = options.message.author;
       this.member = options.message.member;
-      this.permissions = this.channel?.permissionsOf?.(client.user.id) ?? new Permission(Constants.AllPermissions);
+      if (this.channel instanceof TextableChannel) {
+        this.permissions = this.channel.permissionsOf(client.user.id);
+      } else {
+        this.permissions = new Permission(Constants.AllPermissions);
+      }
       this.memberPermissions = this.member?.permissions ?? new Permission(Constants.AllPermissions);
       this.content = options.content;
       this.options = options.specialArgs;
@@ -68,16 +73,88 @@ class Command {
 
   async acknowledge() {
     if (this.type === "classic" && this.message) {
-      const channel = this.channel ?? await this.client.rest.channels.get(this.message.channelID);
-      await channel.sendTyping();
+      await this.client.rest.channels.sendTyping(this.message.channelID);
     }
   }
 
   /**
    * @param {string} key
+   * @param {{ returnNull?: boolean; params?: { [key: string]: any; }; }} [params]
    */
-  getString(key, returnNull = false) {
-    return getString(key, this.locale, returnNull);
+  getString(key, params) {
+    return getString(key, {
+      locale: this.locale,
+      ...params
+    });
+  }
+
+  /**
+   * @param {string} key
+   * @returns {string | undefined}
+   */
+  getOptionString(key) {
+    if (this.type === "classic") {
+      return this.options?.[key];
+    }
+    if (this.type === "application") {
+      return this.interaction?.data.options.getString(key);
+    }
+    throw Error("Unknown command type");
+  }
+
+  /**
+   * @param {string} key
+   * @returns {boolean | undefined}
+   */
+  getOptionBoolean(key) {
+    if (this.type === "classic") {
+      return !!this.options?.[key];
+    }
+    if (this.type === "application") {
+      return this.interaction?.data.options.getBoolean(key);
+    }
+    throw Error("Unknown command type");
+  }
+
+  /**
+   * @param {string} key
+   * @returns {number | undefined}
+   */
+  getOptionNumber(key) {
+    if (this.type === "classic") {
+      return Number.parseFloat(this.options?.[key]);
+    }
+    if (this.type === "application") {
+      return this.interaction?.data.options.getNumber(key);
+    }
+    throw Error("Unknown command type");
+  }
+
+  /**
+   * @param {string} key
+   * @returns {number | undefined}
+   */
+  getOptionInteger(key) {
+    if (this.type === "classic") {
+      return Number.parseInt(this.options?.[key]);
+    }
+    if (this.type === "application") {
+      return this.interaction?.data.options.getInteger(key);
+    }
+    throw Error("Unknown command type");
+  }
+
+  /**
+   * @param {string} text
+   */
+  clean(text) {
+    if (this.message) {
+      return cleanMessage(this.message, text);
+    }
+    if (this.interaction) {
+      return cleanInteraction(this.interaction, text);
+    }
+    throw Error("Unknown command type");
   }
 
   static init() {

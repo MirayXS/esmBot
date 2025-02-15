@@ -1,18 +1,19 @@
-import { clean } from "../../utils/misc.js";
+import { clean } from "#utils/misc.js";
 import { promisify } from "node:util";
 import { exec as baseExec } from "node:child_process";
 const exec = promisify(baseExec);
-import Command from "../../classes/command.js";
+import Command from "#cmd-classes/command.js";
+import { Constants } from "oceanic.js";
 
 class ExecCommand extends Command {
   async run() {
-    const owners = process.env.OWNER.split(",");
+    const owners = process.env.OWNER?.split(",") ?? [];
     if (!owners.includes(this.author.id)) {
       this.success = false;
       return this.getString("commands.responses.exec.botOwnerOnly");
     }
     await this.acknowledge();
-    const code = this.options.cmd ?? this.args.join(" ");
+    const code = this.getOptionString("cmd") ?? this.args.join(" ");
     try {
       const execed = await exec(code);
       if (execed.stderr) return `\`${this.getString("errorCaps")}\` \`\`\`xl\n${await clean(execed.stderr)}\n\`\`\``;
@@ -22,7 +23,7 @@ class ExecCommand extends Command {
         return {
           content: this.getString("tooLarge"),
           files: [{
-            contents: cleaned,
+            contents: Buffer.from(cleaned),
             name: "result.txt"
           }]
         };
@@ -35,7 +36,7 @@ class ExecCommand extends Command {
 
   static flags = [{
     name: "cmd",
-    type: 3,
+    type: Constants.ApplicationCommandOptionTypes.STRING,
     description: "The command to execute",
     classic: true,
     required: true

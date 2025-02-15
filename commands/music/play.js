@@ -1,5 +1,6 @@
-import { play } from "../../utils/soundplayer.js";
-import MusicCommand from "../../classes/musicCommand.js";
+import { play } from "#utils/soundplayer.js";
+import MusicCommand from "#cmd-classes/musicCommand.js";
+import { Constants } from "oceanic.js";
 const prefixes = ["scsearch:", "spsearch:", "sprec:", "amsearch:", "dzsearch:", "dzisrc:"];
 if (process.env.YT_DISABLED !== "true") prefixes.push("ytsearch:", "ytmsearch:");
 
@@ -13,7 +14,7 @@ class PlayCommand extends MusicCommand {
       this.success = false;
       return this.getString("permissions.noEmbedLinks");
     }
-    const input = this.options.query ?? this.args.join(" ");
+    const input = this.getOptionString("query") ?? this.args.join(" ");
     if (!input && (!this.message || this.message?.attachments.size <= 0)) {
       this.success = false;
       return this.getString("commands.responses.play.noInput");
@@ -37,7 +38,7 @@ class PlayCommand extends MusicCommand {
 
   static flags = [{
     name: "query",
-    type: 3,
+    type: Constants.ApplicationCommandOptionTypes.STRING,
     description: "An audio search query or URL",
     classic: true,
     required: true

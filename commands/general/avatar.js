@@ -1,4 +1,5 @@
-import Command from "../../classes/command.js";
+import { Constants } from "oceanic.js";
+import Command from "#cmd-classes/command.js";
 const mentionRegex = /^<?[@#]?[&!]?(\d+)>?$/;
 const imageSize = 512;
 
@@ -42,7 +43,7 @@ class AvatarCommand extends Command {
   static aliases = ["pfp", "ava"];
   static flags = [{
     name: "member",
-    type: 6,
+    type: Constants.ApplicationCommandOptionTypes.USER,
     description: "The member to get the avatar from",
     classic: true,
     required: false
