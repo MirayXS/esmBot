@@ -756,8 +756,8 @@ pnpm<span class="w"> </span>install
 <p>PostgreSQL isn't running, you should be able to start it on most Linux systems with <code>sudo systemctl start postgresql</code>. If you don't intend to use PostgreSQL, you should take another look at your <code>DB</code> variable in the .env file.</p>
 </details>
 <details class="faq">
-<summary>Gifs from Tenor result in a "no decode delegate for this image format" or "improper image header" error</summary>
-<p>Tenor GIFs are actually stored as MP4s, which libvips can't decode most of the time. You'll need to get a Tenor API key from <a href="https://developers.google.com/tenor/guides/quickstart">here</a> and put it in the <code>TENOR</code> variable in .env.</p>
+<summary>Gifs from Tenor and KLIPY result in a "no decode delegate for this image format" or "improper image header" error</summary>
+<p>Tenor and KLIPY GIFs are typically delivered as videos, which libvips can't decode most of the time. This should be handled for Tenor GIFs; if this happens, it is most likely a bug and should be reported <a href="https://github.com/esmBot/esmBot/issues">here</a> or in the <a href="https://esmbot.net/support">esmBot Support server</a>. For KLIPY, you'll need to get a KLIPY API key from <a href="https://partner.klipy.com">here</a> and put it in the <code>KLIPY</code> variable in .env.</p>
 </details>
 <hr>
 <p>If you have any further questions regarding self-hosting, feel free to ask in the #support channel on the <a href="https://esmbot.net/support">esmBot Support server</a>.</p>
@@ -781,7 +781,7 @@ pnpm<span class="w"> </span>install
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 1, 2025 07:19:48 UTC">December 1, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="January 13, 2026 23:29:36 UTC">January 13, 2026</span>
   </span>
 
     
